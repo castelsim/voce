@@ -72,6 +72,11 @@ const pronte = () => window.__voce?.S.lati.PRE?.tracce && window.__voce?.S.lati.
 
 test('giro completo nel browser', { skip: causa, timeout: 600000 }, async () => {
   await conPagina(async ({ page, dir, errori, scaricati, download }) => {
+    // prima di caricare i file comandi e spettrogrammi non si vedono (l'attributo hidden vale anche con le classi)
+    await page.waitForFunction(() => document.getElementById('schermo-app') && !document.getElementById('schermo-app').hidden)
+    const visibili = await page.evaluate(() => ['comandi', 'spg-pre', 'spg-post', 'legenda']
+      .filter(id => getComputedStyle(document.getElementById(id)).display !== 'none'))
+    assert.deepEqual(visibili, [], 'visibili prima del caricamento: ' + visibili.join(', '))
     await (await page.$('#file-pre')).uploadFile(pre)
     await (await page.$('#file-post')).uploadFile(post)
     await page.waitForFunction(pronte, { timeout: 300000 })
